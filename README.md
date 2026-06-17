@@ -66,7 +66,7 @@ After your node is running and synced, you need to:
 2. Set session keys (`author_rotateKeys` RPC → `session.setKeys` extrinsic)
 3. Call `staking.validate` from your stash wallet
 
-Use [Polkadot.js Apps](https://polkadot.js.org/apps) connected to the Nulla RPC endpoint.
+Use official nulla extention connected to the official nulla explorer https://www.nullascan.com/
 
 ---
 
