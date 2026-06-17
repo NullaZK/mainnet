@@ -1,0 +1,11 @@
+---
+# Fill in your validator stash SS58 addresses before running site.yml.
+# Create one sr25519 wallet per validator in Polkadot.js extension or with subkey.
+# Each address here must match the stash account you will bond tokens from onchain.
+
+validator_stashes:
+  node1: "FILL_IN_NODE1_SS58"
+  node2: "FILL_IN_NODE2_SS58"
+  # Add more nodes to match your inventory:
+  # node3: "FILL_IN_NODE3_SS58"
+  # node4: "FILL_IN_NODE4_SS58"

@@ -1,0 +1,25 @@
+[Unit]
+Description=Nulla Relay Mainnet Validator -- {{ inventory_hostname }}
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User={{ nulla_user }}
+Group={{ nulla_group }}
+ExecStart={{ relay_binary }} \
+  --chain {{ relay_chainspec }} \
+  --validator \
+  --name {{ inventory_hostname }} \
+  --base-path {{ chain_data_dir }}/relay \
+  --node-key-file {{ chain_data_dir }}/relay/node.key \
+  --port {{ relay_p2p_port }} \
+  --rpc-port {{ relay_rpc_port }} \
+  --rpc-methods Safe \
+  --no-telemetry
+
+Restart=always
+RestartSec=10
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,208 @@
+---
+# Nulla Mainnet -- validator node deployment
+#
+# SETUP (do once):
+#   1. Copy inventory.ini.example -> inventory.ini and fill in your server IPs
+#   2. Fill group_vars/stash_accounts.yml with your validator stash SS58 addresses
+#   3. Generate session mnemonics and create vault:
+#        ./generate-session-mnemonics.sh
+#        ansible-vault create group_vars/session_keys.vault.yml
+#   4. Copy binaries and chainspec into role files:
+#        cp ../binaries/nulla-relay                roles/nulla-relay/files/
+#        cp ../binaries/polkadot-prepare-worker    roles/nulla-relay/files/
+#        cp ../binaries/polkadot-execute-worker    roles/nulla-relay/files/
+#        cp ../chainspec/nulla-mainnet.raw.json    roles/nulla-relay/files/
+#   5. Push SSH keys to new servers (first time only):
+#        apt install sshpass
+#        ansible-playbook 00-push-ssh-keys.yml --ask-pass
+#
+# DEPLOY:
+#   ansible-playbook site.yml --ask-vault-pass
+#
+# SINGLE NODE:
+#   ansible-playbook site.yml --ask-vault-pass --limit node2
+#
+# RECOVER (server rebuilt, re-insert keys only):
+#   ansible-playbook site.yml --ask-vault-pass --limit node2 --tags keys
+
+# ---------------------------------------------------------------------------
+- name: Play 1 -- Common OS setup on all validators
+  hosts: all_validators
+  become: true
+
+  pre_tasks:
+    - name: Verify nulla-relay binary staged
+      local_action:
+        module: stat
+        path: "{{ playbook_dir }}/roles/nulla-relay/files/nulla-relay"
+      register: binary_check
+      run_once: true
+
+    - name: Fail if binary missing
+      fail:
+        msg: >
+          Copy the binary first:
+          cp ../binaries/nulla-relay roles/nulla-relay/files/nulla-relay
+      when: not binary_check.stat.exists
+      run_once: true
+
+    - name: Verify chainspec staged
+      local_action:
+        module: stat
+        path: "{{ playbook_dir }}/roles/nulla-relay/files/nulla-mainnet.raw.json"
+      register: chainspec_check
+      run_once: true
+
+    - name: Fail if chainspec missing
+      fail:
+        msg: >
+          Copy the chainspec first:
+          cp ../chainspec/nulla-mainnet.raw.json roles/nulla-relay/files/
+      when: not chainspec_check.stat.exists
+      run_once: true
+
+    - name: Verify vault file exists
+      local_action:
+        module: stat
+        path: "{{ playbook_dir }}/group_vars/session_keys.vault.yml"
+      register: vault_check
+      run_once: true
+
+    - name: Fail if vault missing
+      fail:
+        msg: >
+          Create the vault first:
+          ./generate-session-mnemonics.sh
+          ansible-vault create group_vars/session_keys.vault.yml
+      when: not vault_check.stat.exists
+      run_once: true
+
+  roles:
+    - common
+
+# ---------------------------------------------------------------------------
+- name: Play 2 -- Insert session keys from vault + generate P2P node key
+  hosts: all_validators
+  become: true
+  vars_files:
+    - group_vars/session_keys.vault.yml
+
+  tasks:
+    - name: Ensure keystore directory exists
+      file:
+        path: "{{ relay_keystore_path }}"
+        state: directory
+        owner: "{{ nulla_user }}"
+        group: "{{ nulla_group }}"
+        mode: "0700"
+
+    - name: Generate P2P node key (skipped if already exists)
+      command: >
+        {{ relay_binary }} key generate-node-key
+        --file {{ chain_data_dir }}/relay/node.key
+      args:
+        creates: "{{ chain_data_dir }}/relay/node.key"
+      become_user: "{{ nulla_user }}"
+
+    - name: Read peer ID
+      command: >
+        {{ relay_binary }} key inspect-node-key
+        --file {{ chain_data_dir }}/relay/node.key
+      register: peer_id_output
+      changed_when: false
+
+    - name: Show peer ID
+      debug:
+        msg: "{{ inventory_hostname }} peer_id={{ peer_id_output.stdout | trim }}"
+
+    - name: Set mnemonic for this node
+      set_fact:
+        node_mnemonic: "{{ session_mnemonics[inventory_hostname] }}"
+      no_log: true
+
+    - name: Check if session keys already inserted
+      stat:
+        path: "{{ chain_data_dir }}/relay/.session_keys_inserted"
+      register: keys_marker
+
+    - name: Insert BABE key (sr25519)
+      command: >
+        {{ relay_binary }} key insert
+        --keystore-path {{ relay_keystore_path }}
+        --scheme sr25519 --key-type babe
+        --suri "{{ node_mnemonic }}"
+      no_log: true
+      when: not keys_marker.stat.exists
+
+    - name: Insert GRANDPA key (ed25519)
+      command: >
+        {{ relay_binary }} key insert
+        --keystore-path {{ relay_keystore_path }}
+        --scheme ed25519 --key-type gran
+        --suri "{{ node_mnemonic }}"
+      no_log: true
+      when: not keys_marker.stat.exists
+
+    - name: Insert BEEFY key (ecdsa)
+      command: >
+        {{ relay_binary }} key insert
+        --keystore-path {{ relay_keystore_path }}
+        --scheme ecdsa --key-type beef
+        --suri "{{ node_mnemonic }}"
+      no_log: true
+      when: not keys_marker.stat.exists
+
+    - name: Insert authority_discovery key (sr25519)
+      command: >
+        {{ relay_binary }} key insert
+        --keystore-path {{ relay_keystore_path }}
+        --scheme sr25519 --key-type audi
+        --suri "{{ node_mnemonic }}"
+      no_log: true
+      when: not keys_marker.stat.exists
+
+    - name: Insert para_assignment key (sr25519)
+      command: >
+        {{ relay_binary }} key insert
+        --keystore-path {{ relay_keystore_path }}
+        --scheme sr25519 --key-type asgn
+        --suri "{{ node_mnemonic }}"
+      no_log: true
+      when: not keys_marker.stat.exists
+
+    - name: Insert para_validator key (sr25519)
+      command: >
+        {{ relay_binary }} key insert
+        --keystore-path {{ relay_keystore_path }}
+        --scheme sr25519 --key-type para
+        --suri "{{ node_mnemonic }}"
+      no_log: true
+      when: not keys_marker.stat.exists
+
+    - name: Lock down keystore permissions
+      file:
+        path: "{{ relay_keystore_path }}"
+        state: directory
+        owner: "{{ nulla_user }}"
+        group: "{{ nulla_group }}"
+        mode: "0700"
+        recurse: true
+      when: not keys_marker.stat.exists
+
+    - name: Mark session keys as inserted
+      file:
+        path: "{{ chain_data_dir }}/relay/.session_keys_inserted"
+        state: touch
+        owner: "{{ nulla_user }}"
+        group: "{{ nulla_group }}"
+        mode: "0600"
+      when: not keys_marker.stat.exists
+
+  tags: keys
+
+# ---------------------------------------------------------------------------
+- name: Play 3 -- Deploy chainspec and start validators
+  hosts: all_validators
+  become: true
+  roles:
+    - nulla-relay

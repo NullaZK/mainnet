@@ -1,0 +1,94 @@
+---
+# Common role -- runs on every validator node.
+
+- name: Create nulla system group
+  group:
+    name: "{{ nulla_group }}"
+    system: true
+    state: present
+
+- name: Create nulla system user
+  user:
+    name: "{{ nulla_user }}"
+    group: "{{ nulla_group }}"
+    system: true
+    shell: /usr/sbin/nologin
+    home: "{{ chain_data_dir }}"
+    create_home: false
+    state: present
+
+- name: Create data and config directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ nulla_user }}"
+    group: "{{ nulla_group }}"
+    mode: "0750"
+  loop:
+    - "{{ chain_data_dir }}"
+    - "{{ chain_data_dir }}/relay"
+    - "{{ chainspec_dir }}"
+
+- name: Copy nulla-relay binary
+  copy:
+    src: "{{ playbook_dir }}/roles/nulla-relay/files/nulla-relay"
+    dest: "{{ relay_binary }}"
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Copy polkadot-prepare-worker binary
+  copy:
+    src: "{{ playbook_dir }}/roles/nulla-relay/files/polkadot-prepare-worker"
+    dest: "{{ bin_dir }}/polkadot-prepare-worker"
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Copy polkadot-execute-worker binary
+  copy:
+    src: "{{ playbook_dir }}/roles/nulla-relay/files/polkadot-execute-worker"
+    dest: "{{ bin_dir }}/polkadot-execute-worker"
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Install required packages
+  apt:
+    name:
+      - curl
+      - jq
+      - ufw
+      - net-tools
+    state: present
+    update_cache: true
+  tags: packages
+
+# Firewall -- P2P must be open so peers can connect
+- name: Allow SSH
+  ufw:
+    rule: allow
+    port: "{{ ansible_port | default(22) }}"
+    proto: tcp
+  tags: firewall
+
+- name: Allow relay P2P
+  ufw:
+    rule: allow
+    port: "{{ relay_p2p_port }}"
+    proto: tcp
+  tags: firewall
+
+- name: Block relay RPC from internet (use SSH tunnel for admin access)
+  ufw:
+    rule: deny
+    port: "{{ relay_rpc_port }}"
+    proto: tcp
+  tags: firewall
+
+- name: Enable UFW with deny-all default
+  ufw:
+    state: enabled
+    policy: deny
+    direction: incoming
+  tags: firewall

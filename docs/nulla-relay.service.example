@@ -1,0 +1,25 @@
+[Unit]
+Description=Nulla Relay Mainnet Validator
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=nulla
+Group=nulla
+ExecStart=/usr/local/bin/nulla-relay \
+  --chain /etc/nulla/nulla-mainnet.raw.json \
+  --validator \
+  --name YOUR_NODE_NAME \
+  --base-path /var/lib/nulla/relay \
+  --node-key-file /var/lib/nulla/relay/node.key \
+  --port 30333 \
+  --rpc-port 9944 \
+  --rpc-methods Safe \
+  --no-telemetry
+
+Restart=always
+RestartSec=10
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target

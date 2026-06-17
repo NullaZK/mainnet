@@ -1,0 +1,21 @@
+---
+# Shared variables for all validator nodes.
+
+# OS user
+nulla_user:  nulla
+nulla_group: nulla
+
+# Directory layout
+chain_data_dir: /var/lib/nulla
+chainspec_dir:  /etc/nulla
+bin_dir:        /usr/local/bin
+
+# Relay chain
+relay_binary:    "{{ bin_dir }}/nulla-relay"
+relay_chain_id:  nulla_mainnet
+relay_chainspec: "{{ chainspec_dir }}/nulla-mainnet.raw.json"
+relay_p2p_port:  30333
+relay_rpc_port:  9944
+
+# Keystore path -- must match relay_chain_id
+relay_keystore_path: "{{ chain_data_dir }}/relay/chains/{{ relay_chain_id }}/keystore"

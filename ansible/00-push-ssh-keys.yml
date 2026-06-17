@@ -1,0 +1,43 @@
+---
+# Run ONCE to bootstrap validator nodes from root access.
+# From your control machine:
+#   ansible-playbook 00-push-ssh-keys.yml --ask-pass
+#
+# What this does (as root, password auth):
+#   1. Creates the deploy user (ansible_user from inventory) with bash shell
+#   2. Grants passwordless sudo
+#   3. Pushes your SSH public key to the user authorized_keys
+#
+# After this, all subsequent playbooks connect with key auth -- no passwords needed.
+# Requires: sshpass   (apt install sshpass)
+#
+# The deploy_user is read from ansible_user in your inventory.ini.
+
+- name: Bootstrap deploy user on validator nodes
+  hosts: validator_nodes
+  gather_facts: false
+  remote_user: root
+  vars:
+    deploy_user: "{{ ansible_user | default(\'nulla-deploy\') }}"
+    ssh_pubkey_path: "{{ lookup(\'env\', \'HOME\') }}/.ssh/id_ed25519.pub"
+  tasks:
+    - name: Create deploy user
+      user:
+        name: "{{ deploy_user }}"
+        shell: /bin/bash
+        create_home: true
+        state: present
+
+    - name: Grant passwordless sudo
+      copy:
+        dest: "/etc/sudoers.d/{{ deploy_user }}"
+        content: "{{ deploy_user }} ALL=(ALL) NOPASSWD:ALL\n"
+        mode: \'0440\'
+        owner: root
+        group: root
+
+    - name: Install SSH public key
+      ansible.posix.authorized_key:
+        user: "{{ deploy_user }}"
+        state: present
+        key: "{{ lookup(\'file\', ssh_pubkey_path) }}"

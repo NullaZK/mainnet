@@ -1,0 +1,22 @@
+# Nulla Mainnet Validator Inventory
+# Fill in your server IPs and SSH usernames.
+#
+# validator_index must be unique per node (used for naming only).
+# ansible_port: your SSH port (default 22, change if needed).
+#
+# If you only have one node, remove the others and adjust [all_validators:children].
+
+[sudo_node]
+# node1 is your first validator. It does NOT need to hold sudo onchain —
+# that's a separate governance wallet set in stash_accounts.yml.
+node1 ansible_host=YOUR_IP_1 ansible_user=nulla-deploy ansible_port=22 validator_index=1
+
+[validator_nodes]
+node2 ansible_host=YOUR_IP_2 ansible_user=nulla-deploy ansible_port=22 validator_index=2
+node3 ansible_host=YOUR_IP_3 ansible_user=nulla-deploy ansible_port=22 validator_index=3
+# Add more nodes here as needed:
+# node4 ansible_host=YOUR_IP_4 ansible_user=nulla-deploy ansible_port=22 validator_index=4
+
+[all_validators:children]
+sudo_node
+validator_nodes
