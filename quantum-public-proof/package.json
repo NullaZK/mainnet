@@ -1,0 +1,12 @@
+{
+  "name": "proofhub-public-proof",
+  "version": "1.0.0",
+  "description": "Public, reproducible proof that ProofHub uses NIST FIPS 204 ML-DSA-44 post-quantum keys.",
+  "main": "verify.js",
+  "scripts": {
+    "verify": "node verify.js"
+  },
+  "dependencies": {
+    "@polkadot/api": "^11.0.0"
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "_about": "Public reproducible proof that this wallet created a NIST FIPS 204 ML-DSA-44 post-quantum deposit on ProofHub Mainnet and later withdrew it with privacy preserved.",
+  "_warning_what_is_missing": "ml_dsa_sk_hex (the secret key) is NOT in this package and MUST NEVER be shared.",
+  "network": {
+    "name": "ProofHub Mainnet",
+    "rpc": "wss://146.70.106.62.nip.io/proofhub",
+    "spec_name": "proofhub-runtime",
+    "spec_version": 127
+  },
+  "deposit": {
+    "block_number": 2412,
+    "block_hash": "0x44022352bf84d0475f467d39ef16077b882104b36bd6fcbfa09ed20dd3db32fe",
+    "value_planck": 2000000000000,
+    "leaf_hex": "f33789b40873444ca68eb96e46b5eac666c6ec053bffc11edcf4e5be127c8f65",
+    "blinding_hex": "76ef4cd8a90ae75a3f60632e4229ccbb040eebff6d95c47b71f608843bb71e25",
+    "ml_dsa_pk_hex": "4e7717df3f4b75856fcf9e11e99d2cc0d839d3586306599723a960352c9e2c77c679859e4868981891b2f3dedba13a47fa58d7c2b20d7a0d9c72f8e29dc05b6c1fc870e5820f0b631ca0ee2aae69206966f26072e3bbae96e383736555d474e0e4b0be931e6c47b965d0a1b8ffc9c8d5aaf1c562e3e923b3828f586291d4860b2ec78ddeaa6198b614907c891682e6298b11d87ffda278719ad73be62038a5713ba6403821408b6d20f0a1e1113aa57c45f99a95cf04c3c0e95d7887850a994280b4f929068840a1f8d34952212ba3bdf330565331faf9868518e47c9d14b39076ea78c9feaa0b6ef3525ad3e894bdd384eb2e330d065d1e68e5fbadd4d4fdd7215a4074be053d022c3277c1a99d72f1c5398b4d4c8b183c3bb27addaa6b1f6e99edf00ddf403ba0b960a2d4fac89ab692bad49bcc67c24cbeba4fd51cc52ee813ee59cf115901e662d6adb852fa634f3dc0b6b766f2b91149e5419468ee9404df002fb48298ac7361edc4a9f665c94efa7851ab484e41b766f99bcb0208d7b4a6ee4cffbe0a12d98472892df089467a3e16f4129b193193e11c76acfb9f199b725618516b04f821f0648b6012e51a225bc162e18b6ab76db75ef05e3b393d8f5f936ec3c9fd6597b2f1ebd9447b0d30e84b61d667d793e4c57ef45f09ecf18dfa979d39ee706eb71f87e0fe823c177050b04d62fd4bbe574c2661b798d500ec588c6efe7adb159edd781f9d573f022d7ae6502c63f1efe02b0bc8501d400cd86467999f07377a26c0b95ff9071bbe3af8b9bab9a3f466b30bd8796f1580fd2c6c52546b07a8ec841a691c0519cf5f539e6ffbc770529b82870773137b5833dc737a50f5ce9db00051f078eb51db4cefb6a373d7770b547dca8910980c0fb5aa93b544593eb2fdef50e604098dcabc496098dcc3f8c49538af25659f4c8895f923bbac91ae698d90908f6895a3ef073b538ffd831d1bb8b658a206a1222c4879d2119f777246b5bcb71f4aeace9f62c2ac81d2d2fe2723ea2727a59dca92d0ec1e3a102f928d205ef3ba3d79edf4f997dba2dd381bac105fdfe607ed92784211f7a6ae67a539d813fac6516ddee8a7399403e58b263dac1976f15e15925784917676f6efbb48310373b54e8553277b55e9d43f94b877fe489efc31c537721aa6f8f4caabefeee7be472471328c53451d14f1b56afa57815ebed7605637954dd112d7d6e5024c4d983872e30d283d2b40c72c2739302e69d99a029fc4b126bb3e9e9cec2e17ab2ce535602e231e2a555021c1bf243c375da712e5b2b823de305693ff0c1fce5928d895d3bba4587b1ceed51a30df205b77b72c02dd9ca5194dba9b0d7497d25dcae86fa1adcabda434bb3ca1a4bfbff55fe72a327a6876a98fe013c2f56c2eacffd382d61639d8faba59bb34637c95c65c4d174dd34610e5c379167c03dc7a222ae52d88932368de06c43f244e8a74ee1fd4016ef9e397ce50de39b1e992d2f317d47357465bf5b28c3df71ff6a75ad8d74b073f3311e4ca54481c228336fafe078b6fe15aee7bbbc985766d03feb874b20a4221d6bc40c8f9504bc9a8402d22f09c8378e62d471d6cacd0c605e187f51e5f05baa8cac14adc9cba8cd109bd89d4632326de4d39074f4ed0fbf56fcbb4e8e271e3058e1b133b168e62f6ca21e2e1f6be8d0dc4ff836b961b34a1d08217451007d2da55abf745965fb23ff0b071eed4d6d654e2e918ce0c4ac85c393d59d4c550318134197655e56d4933719591f3fa84d599492e2fa47254f4289927d441a9cb5be370b187a6d9b4e61b00528c05204cbdb8ae6e18d571861180157e351628274d03f97a137e93",
+    "ml_dsa_pk_size_bytes": 1312
+  },
+  "withdraw": {
+    "block_number": 2438,
+    "nullifier_hex": "9216564be954cc6f3aabb8c2e8a8d7fc62dcbe98ef55822d03476e1f517677d2",
+    "_note_published_short_nullifier": "The on-chain event emits a 16-byte truncated nullifier marker; the FULL 32-byte nullifier above appears verbatim inside the extrinsic call payload."
+  },
+  "privacy_property": {
+    "deposit_commitment_revealed_at_withdraw": false,
+    "explanation": "The withdraw extrinsic does NOT contain the deposit's leaf_hex. The ZK proof attests 'I own one of the commitments in the tree' without disclosing which one. Outside observers see only the public nullifier marker; the link to the specific deposit is cryptographically hidden."
+  },
+  "fips_204_reference": {
+    "ml_dsa_44_pk_bytes": 1312,
+    "ml_dsa_44_sk_bytes": 2560,
+    "ml_dsa_44_sig_bytes": 2420,
+    "standard": "NIST FIPS 204 (August 2024)"
+  }
+}
